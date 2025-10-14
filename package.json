@@ -9,6 +9,6 @@
   "author": "Sean Morris",
   "license": "Apache-2.0",
   "dependencies": {
-    "libtuple": "^0.0.8"
+    "libtuple": "^1.0.0"
   }
 }
