@@ -1,0 +1,14 @@
+{
+  "name": "libtuple-schema",
+  "version": "0.0.0",
+  "description": "Schemas for libtuple",
+  "main": "Schema.mjs",
+  "scripts": {
+		"test": "node --test --expose-gc test/test.mjs"
+	},
+  "author": "Sean Morris",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "libtuple": "^0.0.8"
+  }
+}
