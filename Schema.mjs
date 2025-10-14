@@ -657,8 +657,8 @@ const Schema = {
 	 * @param {boolean} options.optional Is this an optional value?
 	 * @param {*} options.default If the value is optional & undefined or missing, use this value.
 	 * @param {boolean} options.nullable Is this a nullable value?
-	 * @param {number} options.max Max length
-	 * @param {number} options.min Min length
+	 * @param {Date|number} options.max Max Date
+	 * @param {Date|number} options.min Min Date
 	 * @param {Regex} options.match Throw a TypeError if this does NOT match
 	 * @param {Regex} options.noMatch Throw a TypeError if this DOES match
 	 * @param {function(any):boolean} options.check Throw a TypeError if this returns false.
@@ -675,15 +675,16 @@ const Schema = {
 			{
 				return null;
 			}
-			if(isNaN(Date.parse(value)))
+			const timestamp = Date.parse(value);
+			if(isNaN(timestamp))
 			{
 				throw new TypeError(`Expected dateString, got "${value}" at ${path}`);
 			}
-			if('max' in options && options.max < value)
+			if('max' in options && options.max < timestamp)
 			{
 				throw new TypeError(`Expected max ${options.max}, got "${value}" at ${path}`);
 			}
-			if('min' in options && options.min > value)
+			if('min' in options && options.min > timestamp)
 			{
 				throw new TypeError(`Expected min ${options.min}, got "${value}" at ${path}`);
 			}
@@ -703,7 +704,7 @@ const Schema = {
 	 */
 	uuidString(options = {})
 	{
-		const checks = [ value => String(value).match(/^[a-z,0-9]{8}-[a-z,0-9]{4}-[a-z,0-9]{4}-[a-z,0-9]{4}-[a-z,0-9]{12}$/i) ];
+		const checks = [ value => String(value).match(/^[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}$/i) ];
 
 		if(options.check)
 		{
@@ -743,7 +744,7 @@ const Schema = {
 	},
 
 	/**
-	 * Validate a regex string
+	 * Validate an email string
 	 * @param {Object} options
 	 * @param {boolean} options.optional Is this an optional value?
 	 * @param {*} options.default If the value is optional & undefined or missing, use this value.
@@ -1108,7 +1109,7 @@ const Schema = {
 		return (value, path) => {
 			if(value !== options.value)
 			{
-				throw new TypeError(`Expected oneOf ${options.value}, got ${value} at ${path}`);
+				throw new TypeError(`Expected literal ${options.value}, got ${value} at ${path}`);
 			}
 			return options.value;
 		};
