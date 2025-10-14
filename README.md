@@ -181,8 +181,6 @@ Validate a boolean.
 
 * options.map - Callback to transform the value after its been validated.
 
----
-
 ### Schema Mappers for Convenience
 
 #### Convenience methods for numbers
@@ -342,8 +340,6 @@ const schema = s.asyncVal(s.number());
   console.log(await schema(Promise.resolve(123))); // 123
 })();
 ```
-
----
 
 ### Schema Mappers for Tuples, Groups, Records and Dicts
 
@@ -573,4 +569,20 @@ console.log({company});
 
 Exclusively map values to a Dict. Will drop any keys not present in the schema.
 
----
+```javascript
+const companySchema = s.xDict({
+    name: s.string(),
+    phone: s.string(),
+    address: s.string(),
+});
+
+const company = companySchema({
+    name: 'Acme Corporation',
+    phone: '+1-000-555-1234',
+    address: '123 Fake St, Anytown, USA',
+    openHours: '9AM-7PM',
+    slogan: 'We do business.',
+});
+
+console.log({company});
+```
