@@ -32,7 +32,7 @@ boolSchema(123);   // throws an error
 You can create schemas for Tuples, Groups, Records, and Dicts:
 
 ```javascript
-import { Schema as s } from 'libtuple';
+import { Schema as s } from 'libtuple-schema';
 
 const pointSchema = s.tuple(
     s.number(),
@@ -58,7 +58,7 @@ console.log(userRecord);
 `Schema.parse()` will return the parsed value, or NaN on error, since `NaN` is falsey, and `NaN !== NaN`.
 
 ```javascript
-import { Schema as s } from 'libtuple';
+import { Schema as s } from 'libtuple-schema';
 
 const boolSchema = s.boolean();
 
@@ -262,7 +262,7 @@ The following methods will call `s.string` with additional constraints added:
 Run the value through each SchemaMapper in sequence.  Passes only if _all_ mappers succeed, returning the last mapped value.
 
 ```javascript
-import { Schema as s } from 'libtuple';
+import { Schema as s } from 'libtuple-schema';
 
 const schema = s.and(
   s.string(),
@@ -277,7 +277,7 @@ s.parse(schema, 'XYZ');              // NaN (fails to match oneOf clause)
 Map the value with the first matching SchemaMapper
 
 ```javascript
-import { Schema as s } from 'libtuple';
+import { Schema as s } from 'libtuple-schema';
 
 const dateSchema = s.or(
     s.string({match: /\d\d \w+ \d\d\d\d \d\d:\d\d:\d\d \w+?/, map: s => new Date(s)}),
@@ -293,7 +293,7 @@ console.log( dateSchema(new Date) );
 Invert a SchemaMapper: succeeds only if the mapper throws, returning the original value.
 
 ```javascript
-import { Schema as s } from 'libtuple';
+import { Schema as s } from 'libtuple-schema';
 
 const schema = s.not(
   s.string({match: /^foo/})
@@ -308,7 +308,7 @@ s.parse(schema, 'foobar');           // NaN (starts with 'foo')
 Repeat a SchemaMapper n times
 
 ```javascript
-import { Schema as s } from 'libtuple';
+import { Schema as s } from 'libtuple-schema';
 
 const pointSchema = s.tuple(...s.repeat(2, s.number()));
 
@@ -320,7 +320,7 @@ const point = pointSchema([5, 10]);
 Match the value to a set of literals with strict-equals comparison.
 
 ```javascript
-import { Schema as s } from 'libtuple';
+import { Schema as s } from 'libtuple-schema';
 
 const schema = s.oneOf(['something', 1234]);
 
@@ -334,7 +334,7 @@ s.parse(schema, 'not on list'); // ERROR!
 Convert a SchemaMapper so it accepts a Promise as input and awaits it.
 
 ```javascript
-import { Schema as s } from 'libtuple';
+import { Schema as s } from 'libtuple-schema';
 
 const schema = s.asyncVal(s.number());
 
@@ -352,7 +352,7 @@ const schema = s.asyncVal(s.number());
 Map one or more values to a Tuple.
 
 ```javascript
-import { Schema as s } from 'libtuple';
+import { Schema as s } from 'libtuple-schema';
 
 const pointSchema = s.tuple(s.number(), s.number());
 
@@ -368,9 +368,9 @@ Map one or more values to a Group.
 Map one or more properties to a Record.
 
 ```javascript
-import { Schema as s } from 'libtuple';
+import { Schema as s } from 'libtuple-schema';
 
-const companySchema = s.sRecord({
+const companySchema = s.record({
     name: s.string(),
     phone: s.string(),
     address: s.string(),
@@ -390,9 +390,9 @@ console.log({company});
 Map one or more values to a Dict.
 
 ```javascript
-import { Schema as s } from 'libtuple';
+import { Schema as s } from 'libtuple-schema';
 
-const companySchema = s.sDict({
+const companySchema = s.dict({
     name: s.string(),
     phone: s.string(),
     address: s.string(),
@@ -412,7 +412,7 @@ console.log({company});
 Map n values to a Tuple. Will append each value in the input to the Tuple using the same mapper.
 
 ```javascript
-import { Schema as s } from 'libtuple';
+import { Schema as s } from 'libtuple-schema';
 
 const vectorSchema = s.nTuple(s.number());
 
@@ -432,7 +432,7 @@ Map n values to a Group. Will append each value in the input to the Group using 
 Map an array of objects to a Tuple of Records.  If passed a single object, it is coerced into a one-element tuple.
 
 ```javascript
-import { Schema as s } from 'libtuple';
+import { Schema as s } from 'libtuple-schema';
 
 const usersSchema = s.nRecord({
   id:   s.number(),
@@ -456,7 +456,7 @@ console.log(users);
 Map an array of objects to a Tuple of Dicts.  If passed a single object, it is coerced into a one-element tuple.
 
 ```javascript
-import { Schema as s } from 'libtuple';
+import { Schema as s } from 'libtuple-schema';
 
 const configsSchema = s.nDict({
   mode: s.string(),
@@ -480,7 +480,7 @@ console.log(configs);
 Strictly map values to a Tuple. Will throw an error if the number of values does not match.
 
 ```javascript
-import { Schema as s } from 'libtuple';
+import { Schema as s } from 'libtuple-schema';
 
 const pointSchema = s.sTuple(s.number(), s.number());
 
@@ -497,9 +497,9 @@ Strictly map values to a Group. Will throw an error if the number of values does
 Strictly map values to a Record. Will throw an error if the number of values does not match.
 
 ```javascript
-import { Schema as s } from 'libtuple';
+import { Schema as s } from 'libtuple-schema';
 
-const companySchema = s.nRecord({
+const companySchema = s.sRecord({
     name: s.string(),
     phone: s.string(),
     address: s.string(),
@@ -530,7 +530,7 @@ Strictly map values to a Dict. Will throw an error if the number of values does 
 Exclusively map values to a Tuple. Will drop any keys not present in the schema.
 
 ```javascript
-import { Schema as s } from './index.mjs';
+import { Schema as s } from 'libtuple-schema';
 
 const pointSchema = s.xTuple(s.number(), s.number());
 

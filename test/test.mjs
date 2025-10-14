@@ -129,19 +129,19 @@ test('s.NaN test', t => {
 	assert.strictEqual(s.parse(schema, 0/0), NaN);
 
 	assert.throws(() => schema(10), 'SchemaMapper should throw errors on bad value.');
-	assert.throws(() => schema('not a number'), 'SchemaMapper should throw errors on bad value.');
+	assert.throws(() => schema('not a literal NaN'), 'SchemaMapper should throw errors on bad value.');
 
 	const schemaOptional = s.NaN({optional: true, default: 1});
 
 	assert.strictEqual(s.parse(schemaOptional, NaN), NaN);
 	assert.strictEqual(s.parse(schemaOptional, undefined), 1);
-	assert.throws(() => schemaOptional('not a NaN'), 'SchemaMapper should throw errors on bad value.');
+	assert.throws(() => schemaOptional('not a literal NaN'), 'SchemaMapper should throw errors on bad value.');
 
-	const schemaNullable = s.float({nullable: true});
+	const schemaNullable = s.NaN({nullable: true});
 
 	assert.strictEqual(s.parse(schemaNullable, NaN), NaN);
 	assert.strictEqual(s.parse(schemaNullable, null), null);
-	assert.throws(() => schemaNullable('not a NaN'), 'SchemaMapper should throw errors on bad value.');
+	assert.throws(() => schemaNullable('not a literal NaN'), 'SchemaMapper should throw errors on bad value.');
 });
 
 test('s.infinity test', t => {
