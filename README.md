@@ -33,10 +33,12 @@ boolSchema(123);   // throws an error
 >
 > Thank you.
 >
-> and now back to your documentation...
-// Practical Example
+and now back to your documentation...
 
-// Imagine validating a blog post payload from an API before processing:
+## Practical Example
+
+Imagine validating a blog post payload from an API before processing:
+
 ```javascript
 import s from 'libtuple-schema';
 
@@ -65,7 +67,8 @@ try {
 }
 ```
 
-// Using `parse` to return `NaN` on error instead of throwing:
+**Using `parse` to return `NaN` on error instead of throwing:**
+
 ```javascript
 import s from 'libtuple-schema';
 

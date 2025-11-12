@@ -1,6 +1,7 @@
 {
   "name": "libtuple-schema",
-  "version": "0.0.0",
+  "repository": "https://github.com/seanmorris/libtuple-schema",
+  "version": "1.0.0",
   "description": "Schemas for libtuple",
   "main": "Schema.mjs",
   "scripts": {
