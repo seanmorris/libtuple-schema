@@ -1,4 +1,6 @@
 # libtuple-schema
+---
+[![npm version](https://img.shields.io/npm/v/libtuple-schema?color=7f3d65&label=libtuple-schema&style=for-the-badge)](https://www.npmjs.com/package/libtuple-schema)  [![GitHub Actions Workflow Status](https://img.shields.io/github/actions/workflow/status/seanmorris/libtuple-schema/test.yaml?style=for-the-badge&link=https%3A%2F%2Fgithub.com%2Fseanmorris%2Flibtuple-schema)](https://github.com/seanmorris/libtuple-schema/actions/workflows/test.yaml)  [![License](https://img.shields.io/npm/l/libtuple-schema?logo=apache&color=427819&style=for-the-badge)](https://github.com/seanmorris/libtuple-schema/blob/master/LICENSE)
 
 ```bash
 $ npm install libtuple-schema
