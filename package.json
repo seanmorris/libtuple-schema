@@ -4,7 +4,7 @@
   "description": "Schemas for libtuple",
   "main": "Schema.mjs",
   "scripts": {
-		"test": "node --test --expose-gc test/test.mjs"
+		"test": "node --test --experimental-test-coverage --expose-gc test/test.mjs"
 	},
   "author": "Sean Morris",
   "license": "Apache-2.0",

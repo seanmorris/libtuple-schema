@@ -165,7 +165,7 @@ const Schema = {
 	 */
 	xTuple(...schema)
 	{
-		return (args, path = 'root') => {
+		return (args = [], path = 'root') => {
 			if(schema.length > args.length)
 			{
 				throw new TypeError(`Expected ${schema.length} elements, got ${args.length} elements at ${path}.`);
@@ -183,7 +183,7 @@ const Schema = {
 	 */
 	xGroup(...schema)
 	{
-		return (args, path = 'root') => {
+		return (args = [], path = 'root') => {
 			if(schema.length > args.length)
 			{
 				throw new TypeError(`Expected ${schema.length} elements, got ${args.length} elements at ${path}.`);
@@ -217,9 +217,10 @@ const Schema = {
 	xDict(schema)
 	{
 		return (arg, path = 'root') => {
-			const schemaKeys = Object.keys(schema);
 			return Dict(Object.fromEntries(
-				schemaKeys.map((key) => [key, schema[key](arg[key], `${path}[${key}]`)])
+				Object.keys(arg)
+				.filter((key) => key in schema)
+				.map((key) => [key, schema[key](arg[key], `${path}[${key}]`)])
 			));
 		}
 	},
@@ -261,15 +262,23 @@ const Schema = {
 	},
 
 	/**
-	 * Map n keys to a Record.
+	 * Map n keys to a Tuple of Records.
 	 * @param {Object.<string, SchemaMapper>} schema - An Object holding SchemaMappers
 	 */
-	nRecord(schema = {})
+	nRecord(schema = {}, options = {})
 	{
 		return (args, path = 'root') => {
 			if(!Array.isArray(args))
 			{
 				args = [args]
+			}
+			if('max' in options && options.max < args.length)
+			{
+				throw new TypeError(`Expected AT MOST ${options.max} entries, got ${args.length} at ${path}`);
+			}
+			if('min' in options && options.min > args.length)
+			{
+				throw new TypeError(`Expected AT LEAST ${options.min} entries, got ${args.length} at ${path}`);
 			}
 			return Tuple(...args.map(arg => {
 				const entries = Object.entries(arg);
@@ -281,10 +290,10 @@ const Schema = {
 	},
 
 	/**
-	 * Map n keys to a Dict.
+	 * Map n keys to a Tuple of Dicts.
 	 * @param {Object.<string, SchemaMapper>} schema - An Object holding SchemaMappers
 	 */
-	nDict(schema = {})
+	nDict(schema = {}, options = {})
 	{
 		/**
 		 * @type SchemaMapper
@@ -293,6 +302,14 @@ const Schema = {
 			if(!Array.isArray(args))
 			{
 				args = [args]
+			}
+			if('max' in options && options.max < args.length)
+			{
+				throw new TypeError(`Expected AT MOST ${options.max} entries, got ${args.length} at ${path}`);
+			}
+			if('min' in options && options.min > args.length)
+			{
+				throw new TypeError(`Expected AT LEAST ${options.min} entries, got ${args.length} at ${path}`);
 			}
 			return Tuple(...args.map(arg => {
 				const entries = Object.entries(arg);
@@ -1032,7 +1049,7 @@ const Schema = {
 			}
 			if(options.check && !options.check(value))
 			{
-				throw new TypeError(`Validation failed! got ${value} at ${path}`);
+				throw new TypeError(`Validation failed! got ${typeof value} at ${path}`);
 			}
 			if(options.map)
 			{
@@ -1144,6 +1161,10 @@ const Schema = {
 			if(options.nullable && value === null)
 			{
 				return null;
+			}
+			if(options.check && !options.check(value))
+			{
+				throw new TypeError(`Validation failed! got ${value} at ${path}`);
 			}
 			if(options.map)
 			{
@@ -1259,7 +1280,7 @@ const Schema = {
 
 	/**
 	 * Make the SchemaMapper asynchronous.
-	 * @param {SchemaMapper} mapper The mapper to invert.
+	 * @param {SchemaMapper} mapper The mapper to apply to the async value.
 	 */
 	asyncVal(mapper)
 	{
@@ -1283,7 +1304,7 @@ const Schema = {
 	 * @param {values} any The values to parse.
 	 * @returns {object|NaN}
 	 */
-	parse(schema, values)
+	parse(schema, values, onError = error => {})
 	{
 		try
 		{
@@ -1291,7 +1312,7 @@ const Schema = {
 		}
 		catch(error)
 		{
-			console.error(error);
+			onError(error);
 			return NaN;
 		}
 	}

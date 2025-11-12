@@ -449,7 +449,7 @@ console.log(users);
 
 #### Schema.nDict(properties)
 
-Map an array of objects to a Tuple of Dicts.  If passed a single object, it is coerced into a one-element tuple.
+Map an array of objects to a Tuple of Dicts. If passed a single object, it is coerced into a one-element tuple.
 
 ```javascript
 import { Schema as s } from 'libtuple-schema';
@@ -523,7 +523,7 @@ Strictly map values to a Dict. Will throw an error if the number of values does 
 
 #### Schema.xTuple(...values)
 
-Exclusively map values to a Tuple. Will drop any keys not present in the schema.
+Exclusively map values to a Tuple. Will drop any keys (indexes) not present in the schema.
 
 ```javascript
 import { Schema as s } from 'libtuple-schema';
@@ -541,7 +541,7 @@ console.log(pointB[2]); // undefined
 
 #### Schema.xGroup(...values)
 
-Exclusively map values to a Group. Will drop any keys not present in the schema.
+Exclusively map values to a Group. Will drop any keys (indexes) not present in the schema.
 
 #### Schema.xRecord(properties)
 
