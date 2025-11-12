@@ -2,11 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
-import Schema from '../Schema.mjs';
-
 import Tuple from 'libtuple/Tuple.mjs';
-
-const s = Schema;
+import s from '../Schema.mjs';
 
 const [major, minor, patch] = process.versions.node.split('.');
 

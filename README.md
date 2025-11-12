@@ -7,7 +7,7 @@ $ npm install libtuple-schema
 A `Schema` allows you to define a complex structure for your immutables. It is defined by one or more `SchemaMapper` functions, which take a value and will either return it, or throw an error:
 
 ```javascript
-import { Schema as s } from 'libtuple-schema';
+import s from 'libtuple-schema';
 
 const boolSchema = s.boolean(); // returns the boolean SchemaMapper
 
@@ -32,11 +32,53 @@ boolSchema(123);   // throws an error
 > Thank you.
 >
 > and now back to your documentation...
+// Practical Example
+
+// Imagine validating a blog post payload from an API before processing:
+```javascript
+import s from 'libtuple-schema';
+
+const postSchema = s.record({
+  id:          s.integer({min: 1}),
+  title:       s.string({min: 1}),
+  content:     s.string({min: 1}),
+  tags:        s.array({each: s.string()}),
+  publishedAt: s.dateString({nullable: true}),
+});
+
+// Example payload (possibly coming from a request):
+const raw = {
+  id: 0,                // invalid: below min
+  title: 'Hello World',
+  content: '<p>Welcome to my blog</p>',
+  tags: ['js', 'schema'],
+  publishedAt: '2021-07-15',
+};
+
+try {
+  const post = postSchema(raw);
+  console.log('Valid post:', post);
+} catch (err) {
+  console.error('Validation failed:', err.message);
+}
+```
+
+// Using `parse` to return `NaN` on error instead of throwing:
+```javascript
+import s from 'libtuple-schema';
+
+const result = s.parse(postSchema, raw, err => console.error(err));
+if (Number.isNaN(result)) {
+  // handle invalid payload
+} else {
+  console.log('Parsed post:', result);
+}
+```
 
 You can create schemas for Tuples, Groups, Records, and Dicts:
 
 ```javascript
-import { Schema as s } from 'libtuple-schema';
+import s from 'libtuple-schema';
 
 const pointSchema = s.tuple(
     s.number(),
@@ -57,12 +99,14 @@ const userRecord = userSchema({id: 1, email: 'fake@example.com'});
 console.log(userRecord);
 ```
 
-## Schema.parse(schema, value)
+## Schema.parse(schema, values[, onError])
 
-`Schema.parse()` will return the parsed value, or NaN on error, since `NaN` is falsey, and `NaN !== NaN`.
+`Schema.parse()` will return the parsed value, or `NaN` on error, since `NaN` is falsey and `NaN !== NaN`.
+
+The optional `onError` callback will be invoked with the `Error` before returning `NaN`.
 
 ```javascript
-import { Schema as s } from 'libtuple-schema';
+import s from 'libtuple-schema';
 
 const boolSchema = s.boolean();
 
@@ -106,7 +150,10 @@ Drop the value (always maps to `undefined`).
 
 Validate a boolean.
 
-* options.map - Callback to transform the value after its been validated.
+* options.optional - Is this value optional?
+* options.default - If the value is optional & the value is `undefined`, use this value.
+* options.nullable - Is this value nullable?
+* options.map - Callback to transform the value after it has been validated.
 
 #### Schema.number(options)
 
@@ -132,13 +179,16 @@ Validate a boolean.
 
 * options.min - Min length
 * options.max - Max length
-* options.map - Callback to transform the value after its been validated.
-* options.match - Throw a TypeError if this does NOT match
-* options.noMatch - Throw a TypeError if this DOES match
+* options.map - Callback to transform the value after it has been validated.
+* options.match - Throw a TypeError if this does _not_ match
+* options.noMatch - Throw a TypeError if this _does_ match
 * options.check - Throw a TypeError if this returns false.
 * options.nullable - Is this value nullable?
 * options.optional - Is this value optional?
-* options.default - If the value is optional & undefined or missing, use this value.
+* options.default - If the value is optional & `undefined`, use this value.
+* options.prefix - Throw a TypeError if the string does not start with this prefix.
+* options.suffix - Throw a TypeError if the string does not end with this suffix.
+* options.infix - Throw a TypeError if the string does not contain this infix.
 
 #### Schema.array(options)
 
@@ -179,11 +229,16 @@ Validate a boolean.
 
 #### Schema.null(options)
 
-* options.map - Callback to transform the value after its been validated.
+* options.optional - Is this value optional?
+* options.default - If the value is optional & the value is `undefined`, use this value.
+* options.map - Callback to transform the value after it has been validated.
 
 #### Schema.undefined(options)
 
-* options.map - Callback to transform the value after its been validated.
+* options.optional - Is this value optional?
+* options.default - If the value is optional & the value is `undefined`, use this value.
+* options.nullable - Is this value nullable?
+* options.map - Callback to transform the value after it has been validated.
 
 ### Schema Mappers for Convenience
 
@@ -264,7 +319,7 @@ The following methods will call `s.string` with additional constraints added:
 Run the value through each SchemaMapper in sequence.  Passes only if _all_ mappers succeed, returning the last mapped value.
 
 ```javascript
-import { Schema as s } from 'libtuple-schema';
+import s from 'libtuple-schema';
 
 const schema = s.and(
   s.string(),
@@ -279,7 +334,7 @@ s.parse(schema, 'XYZ');              // NaN (fails to match oneOf clause)
 Map the value with the first matching SchemaMapper
 
 ```javascript
-import { Schema as s } from 'libtuple-schema';
+import s from 'libtuple-schema';
 
 const dateSchema = s.or(
     s.string({match: /\d\d \w+ \d\d\d\d \d\d:\d\d:\d\d \w+?/, map: s => new Date(s)}),
@@ -295,7 +350,7 @@ console.log( dateSchema(new Date) );
 Invert a SchemaMapper: succeeds only if the mapper throws, returning the original value.
 
 ```javascript
-import { Schema as s } from 'libtuple-schema';
+import s from 'libtuple-schema';
 
 const schema = s.not(
   s.string({match: /^foo/})
@@ -310,7 +365,7 @@ s.parse(schema, 'foobar');           // NaN (starts with 'foo')
 Repeat a SchemaMapper n times
 
 ```javascript
-import { Schema as s } from 'libtuple-schema';
+import s from 'libtuple-schema';
 
 const pointSchema = s.tuple(...s.repeat(2, s.number()));
 
@@ -321,8 +376,10 @@ const point = pointSchema([5, 10]);
 
 Match the value to a set of literals with strict-equals comparison.
 
+* options.map - Callback to transform the value after it has been validated.
+
 ```javascript
-import { Schema as s } from 'libtuple-schema';
+import s from 'libtuple-schema';
 
 const schema = s.oneOf(['something', 1234]);
 
@@ -336,7 +393,7 @@ s.parse(schema, 'not on list'); // ERROR!
 Convert a SchemaMapper so it accepts a Promise as input and awaits it.
 
 ```javascript
-import { Schema as s } from 'libtuple-schema';
+import s from 'libtuple-schema';
 
 const schema = s.asyncVal(s.number());
 
@@ -352,7 +409,7 @@ const schema = s.asyncVal(s.number());
 Map one or more values to a Tuple.
 
 ```javascript
-import { Schema as s } from 'libtuple-schema';
+import s from 'libtuple-schema';
 
 const pointSchema = s.tuple(s.number(), s.number());
 
@@ -368,7 +425,7 @@ Map one or more values to a Group.
 Map one or more properties to a Record.
 
 ```javascript
-import { Schema as s } from 'libtuple-schema';
+import s from 'libtuple-schema';
 
 const companySchema = s.record({
     name: s.string(),
@@ -390,7 +447,7 @@ console.log({company});
 Map one or more values to a Dict.
 
 ```javascript
-import { Schema as s } from 'libtuple-schema';
+import s from 'libtuple-schema';
 
 const companySchema = s.dict({
     name: s.string(),
@@ -412,7 +469,7 @@ console.log({company});
 Map n values to a Tuple. Will append each value in the input to the Tuple using the same mapper.
 
 ```javascript
-import { Schema as s } from 'libtuple-schema';
+import s from 'libtuple-schema';
 
 const vectorSchema = s.nTuple(s.number());
 
@@ -432,7 +489,7 @@ Map n values to a Group. Will append each value in the input to the Group using 
 Map an array of objects to a Tuple of Records.  If passed a single object, it is coerced into a one-element tuple.
 
 ```javascript
-import { Schema as s } from 'libtuple-schema';
+import s from 'libtuple-schema';
 
 const usersSchema = s.nRecord({
   id:   s.number(),
@@ -456,7 +513,7 @@ console.log(users);
 Map an array of objects to a Tuple of Dicts. If passed a single object, it is coerced into a one-element tuple.
 
 ```javascript
-import { Schema as s } from 'libtuple-schema';
+import s from 'libtuple-schema';
 
 const configsSchema = s.nDict({
   mode: s.string(),
@@ -480,7 +537,7 @@ console.log(configs);
 Strictly map values to a Tuple. Will throw an error if the number of values does not match.
 
 ```javascript
-import { Schema as s } from 'libtuple-schema';
+import s from 'libtuple-schema';
 
 const pointSchema = s.sTuple(s.number(), s.number());
 
@@ -497,7 +554,7 @@ Strictly map values to a Group. Will throw an error if the number of values does
 Strictly map values to a Record. Will throw an error if the number of values does not match.
 
 ```javascript
-import { Schema as s } from 'libtuple-schema';
+import s from 'libtuple-schema';
 
 const companySchema = s.sRecord({
     name: s.string(),
@@ -530,7 +587,7 @@ Strictly map values to a Dict. Will throw an error if the number of values does 
 Exclusively map values to a Tuple. Will drop any keys (indexes) not present in the schema.
 
 ```javascript
-import { Schema as s } from 'libtuple-schema';
+import s from 'libtuple-schema';
 
 const pointSchema = s.xTuple(s.number(), s.number());
 
