@@ -1,7 +1,7 @@
 # libtuple-schema
 
 ```bash
-$ npm install libtuple
+$ npm install libtuple-schema
 ```
 
 A `Schema` allows you to define a complex structure for your immutables. It is defined by one or more `SchemaMapper` functions, which take a value and will either return it, or throw an error:
